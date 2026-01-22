@@ -363,16 +363,13 @@ For a deeper understanding, please consult these authoritative sources instead o
 - **[W3C JPEG File Interchange Format (JFIF)](https://www.w3.org/Graphics/JPEG/jfif3.pdf)** - The standard describing how JPEG data is actually stored in files.
 
 **Academic & Mathematical Foundations:**
-- **[Stanford CS231a: Image Compression](https://web.stanford.edu/class/cs231a/lectures/lecture11.pdf)** - Lecture notes covering the mathematical pipeline of JPEG.
+- **[Wikipedia: Image Compression](https://en.wikipedia.org/wiki/Image_compression)** - General overview including the mathematical pipeline.
 - **[The Scientist and Engineer's Guide to Digital Signal Processing](https://www.dspguide.com/ch27.htm)** - Chapter 27 covers Data Compression and JPEG in excellent detail.
-- **[MIT 6.021J: Discrete Cosine Transform](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-021j-quantitative-physiology-cells-and-tissues-fall-2004/readings/dct.pdf)** - In-depth mathematical explanation of why DCT works for signal compaction.
+- **[Wikipedia: Discrete Cosine Transform](https://en.wikipedia.org/wiki/Discrete_cosine_transform)** - Mathematical explanation of why DCT works for signal compaction.
 
 **Implementation Guides (Deep Dive):**
-- **[ImpulseAdventure: JPEG - The Discrete Cosine Transform (DCT)](https://www.impulseadventure.com/photo/jpeg-compression.html)** - widely considered the best illustrated guide for implementing JPEG from scratch.
-- **[Microsoft Research: The JPEG Standard](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/JPEG.pdf)** - A concise technical overview of the standard.
-
-**Interactive Learning:**
-- **[Parametric JPEG Visualizer](https://jpegsnoop.com/)** - Tools like JPEGsnoop allow you to see the actual Huffman tables and quantization matrices inside files.
+- **[Wikipedia: JPEG](https://en.wikipedia.org/wiki/JPEG)** - Comprehensive guide to the JPEG compression algorithm.
+- **[Wikipedia: JPEG (Syntax and Structure)](https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure)** - Technical overview of the standard and file structure.
 
 **This Implementation:**
 - Back to [README.md](README.md) for usage guide
