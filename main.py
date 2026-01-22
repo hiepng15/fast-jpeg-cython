@@ -5,7 +5,7 @@ Copyright (c) 2026 Huy Hiep Nguyen
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+import cv2
 from logging import DEBUG
 
 # Import application modules
@@ -33,11 +33,15 @@ def main() -> int:
         logger.error(f"Input file '{args.input}' does not exist.")
         return 1
 
-    with Image.open(args.input) as im:
-        im_rgb = im.convert("RGB")
-        pixel_array = np.array(im_rgb, dtype=np.uint8)
-        img_width = im_rgb.width
-        img_height = im_rgb.height
+    # Read image using OpenCV (loads as BGR)
+    img_bgr = cv2.imread(args.input)
+    if img_bgr is None:
+        logger.error(f"Failed to load image: {args.input}")
+        return 1
+
+    # Convert BGR to RGB
+    pixel_array = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    img_height, img_width, _ = pixel_array.shape
 
     logger.debug(f"Image {args.input} loaded - Width: {img_width}px, Height: {img_height}px")
 
@@ -68,10 +72,13 @@ def main() -> int:
         # Decode to YCbCr array
         ycbcr_array = decode(encoding_result, args.last_encoding_stage)
 
-        # Convert YCbCr to RGB and create PIL Image
+        # Convert YCbCr to RGB
         decoded_image_rgb = ycbcr_to_rgb(ycbcr_array)
-        decoded_image = Image.fromarray(decoded_image_rgb)
-        decoded_image.save(args.reconstructed)
+
+        # Save reconstructed image using OpenCV
+        # OpenCV uses BGR, so convert RGB to BGR before saving
+        decoded_image_bgr = cv2.cvtColor(decoded_image_rgb, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(args.reconstructed, decoded_image_bgr)
         logger.info(f"Decoded image saved as {args.reconstructed}")
 
     return 0

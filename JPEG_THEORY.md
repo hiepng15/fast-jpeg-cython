@@ -55,10 +55,10 @@ JPEG is a **lossy compression** image standard. It exploits the fact that human 
 
 ### 2.2 How This Encoder Was Built
 
-**Does this use Pillow for compression?**
+**Does this use OpenCV/Pillow for compression?**
 **No.** This is a valid question!
-- **Pillow's Role:** We only use Pillow to **read** the input image (get RGB pixels) and **save** the final reconstructed image.
-- **Our Encoder's Role:** The entire compression logic (Color conversion, DCT, Quantization, RLE, Huffman) is implemented **from scratch** in this project.
+- **External Library Role:** We only use **OpenCV** to **read** the input image (get RGB pixels) and verify the output.
+- **Our Encoder's Role:** The entire compression logic (Color conversion, DCT, Quantization, RLE, Huffman) is implemented **from scratch**.
 - **Optimization:** To make it fast, we replaced slow Python loops with **Cython** (C-extensions) and **NumPy** vectorization. This makes our distinct implementation competitive and educational.
 
 ---
