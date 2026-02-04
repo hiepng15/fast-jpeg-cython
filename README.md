@@ -1,15 +1,46 @@
 # JPEG Encoder/Decoder User Guide
 
-## 1. Quick Installation
+## 1. High-Performance Results
 
-### 1.1 Install Dependencies
+### 1.1 Compression Visualization (monkey.tiff)
+
+By default, the project processes `test-img/monkey.tiff`.
+
+**File Size Comparison:**
+- **Original (`monkey.tiff`):** ~768 KB
+- **Compressed (`out.jpg`):** ~63 KB (**12x smaller**)
+- **Reconstructed (`rec.png`):** ~598 KB
+
+**Visual Comparison:**
+Comparing the Compressed JPEG vs the Reconstructed PNG:
+
+| Compressed JPEG (`out.jpg`) | Reconstructed PNG (`rec.png`) |
+|:---:|:---:|
+| <img src="out.jpg" width="300"> | <img src="rec.png" width="300"> |
+| *Output from my encoder* | *Output from my decoder* |
+
+**Quality Verification:**
+- **Original Image:** The source file is [`test-img/monkey.tiff`](test-img/monkey.tiff). You can open it from the `test-img` folder to compare with the results.
+- **Visual Check:** Visually, all three images (Original, Encoded, and Decoded) should look identical.
+
+### 1.2 Performance Analysis
+
+To profile the speed of this optimized implementation:
 
 ```bash
-conda env create -f environment.yml
-conda activate jpeg-env
+python profile_run.py
 ```
 
-### 1.2 Build (Choose one of 3 options)
+This will:
+- Run encode & decode once
+- Display top 40 functions by execution time
+- Open interactive visualization in browser (if snakeviz is installed)
+
+---
+
+## 2. Installation
+
+### 2.1 Build (Choose one of 3 options)
 
 **For both encode & decode:**
 
@@ -17,7 +48,7 @@ conda activate jpeg-env
 python setup.py build_ext --inplace
 ```
 
-**For decode only (fastest):**
+**For decode only:**
 
 ```bash
 python setup_decoder.py build_ext --inplace
@@ -31,9 +62,9 @@ python setup_encoder.py build_ext --inplace
 
 ---
 
-## 2. Quick Start
+## 3. Quick Start
 
-### 2.1 Run Encode + Decode Automatically
+### 3.1 Run Encode + Decode Automatically
 
 Single command:
 
@@ -47,9 +78,9 @@ Output:
 
 ---
 
-## 3. Advanced Usage (Create Custom Script)
+## 4. Advanced Usage (Create Custom Script)
 
-### 3.1 Encode Image to JPEG
+### 4.1 Encode Image to JPEG
 
 Create file `encode_example.py` and copy code below:
 
@@ -82,7 +113,7 @@ print(f"Done! File size: {len(result.jpeg_bitstream)} bytes")
 
 ---
 
-### 3.2 Decode JPEG to Image
+### 4.2 Decode JPEG to Image
 
 Create file `decode_example.py` and copy code below:
 
@@ -115,9 +146,9 @@ print("Done! Image saved to: reconstructed.png")
 
 ---
 
-## 4. Advanced Customization
+## 5. Advanced Customization
 
-### 4.1 Adjust JPEG Quality
+### 5.1 Adjust JPEG Quality
 
 Add `quality` parameter to encode:
 
@@ -130,34 +161,16 @@ result = encode(
 
 ---
 
-## 5. Performance Analysis
-
-### 5.1 Analyze Encode/Decode Time
-
-To profile the implementation:
-
-```bash
-python profile_run.py
-```
-
-This will:
-- Run encode & decode once
-- Display top 40 functions by execution time
-- Open interactive visualization in browser (if snakeviz is installed)
-
-### 5.2 Comparison with Pillow
-
-This encoder/decoder uses Cython to optimize bottleneck functions:
-
-| Tool | Time | Notes |
-|------|------|-------|
-| Pillow (PIL.Image) | ~45 sec | Pure Python implementation |
-| This Project (Cython) | ~14 sec | Huffman decode optimized |
-| **Speedup** | **3.2x** | DCT + RLE + Huffman optimized |
-
----
-
 ## 6. Technical Documentation
 
 For detailed algorithm explanation and mathematical formulas (DCT, Quantization, Huffman...):
-👉 [JPEG_THEORY.md](JPEG_THEORY.md)
+ [JPEG_THEORY.md](JPEG_THEORY.md)
+
+---
+
+## 7. Requirements
+
+- numpy>=1.20.0
+- opencv-python>=4.5.0
+- scipy>=1.7.0
+- bitstring>=3.1.9

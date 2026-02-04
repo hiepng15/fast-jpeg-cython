@@ -53,13 +53,7 @@ JPEG is a **lossy compression** image standard. It exploits the fact that human 
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 How This Encoder Was Built
 
-**Does this use OpenCV/Pillow for compression?**
-**No.** This is a valid question!
-- **External Library Role:** We only use **OpenCV** to **read** the input image (get RGB pixels) and verify the output.
-- **Our Encoder's Role:** The entire compression logic (Color conversion, DCT, Quantization, RLE, Huffman) is implemented **from scratch**.
-- **Optimization:** To make it fast, we replaced slow Python loops with **Cython** (C-extensions) and **NumPy** vectorization. This makes our distinct implementation competitive and educational.
 
 ---
 
@@ -85,15 +79,6 @@ JPEG is a **lossy compression** image standard. It exploits the fact that human 
 | Digital cameras | Default format for portability |
 | Satellite imagery | Lightweight transmission from orbit |
 
-### When NOT to Use JPEG
-
-| Scenario | Better Alternative |
-|----------|-------------------|
-| Screenshots, charts, text | PNG (lossless) |
-| Requires transparency | PNG with alpha channel |
-| Professional printing | TIFF (lossless) |
-| Extreme compression priority | WebP, HEIC |
-| Editing (multiple save cycles) | Use PNG/TIFF, convert to JPEG only at end |
 
 ### Quality vs File Size Trade-off
 
@@ -112,15 +97,15 @@ Quality Factor | File Size | Visual Quality | Use Case
 ### 4.1 Color Space Conversion (RGB → YCbCr)
 
 **What is it?**
-Human eyes don't perceive RGB equally. We're much more sensitive to brightness (luminance) than to color (chrominance). This conversion separates the image into:
+Human eyes don't perceive RGB equally. Human vision is much more sensitive to brightness (luminance) than to color (chrominance). This conversion separates the image into:
 - **Y:** Brightness information (luminance)
 - **Cb:** Blue color difference (chrominance)
 - **Cr:** Red color difference (chrominance)
 
 **Why this approach?**
-By separating brightness from color, JPEG can:
-- Keep Y channel at full resolution (what we see most clearly)
-- Reduce Cb/Cr resolution by 4x (humans can't see the difference)
+By separating brightness from color, the algorithm can:
+- Keep Y channel at full resolution (contains the most significant visual information)
+- Reduce Cb/Cr resolution by 4x (chroma subsampling, often imperceptible to the human eye)
 - Achieve compression with minimal visible quality loss
 
 **Where does this formula come from?**
@@ -134,28 +119,24 @@ The coefficients (0.299, 0.587, 0.114) are derived from how human eyes perceive 
 - Green: 59% influence on brightness (most sensitive)
 - Blue: 11% influence on brightness
 
-**Why coded this way in the implementation?**
-```python
-ycbcr_flat = rgb_flat @ conv_matrix.T + np.array([0, 128, 128])
-```
-This uses vectorized matrix multiplication (fast with NumPy), avoiding slow Python loops. The constant `128` offsets Cb/Cr to center them at 128 (instead of 0).
+
 
 ---
 
 ### 4.2 DCT (Discrete Cosine Transform)
 
 **What is DCT?**
-DCT converts pixel data from the **spatial domain** (what you see) to the **frequency domain** (how much variation at each frequency).
+DCT converts pixel data from the **spatial domain** (intensity values at specific coordinates) to the **frequency domain** (amount of variation at different frequencies).
 
 **Real-world analogy:**
 Imagine a flat wall painted with gradual color changes:
-- **Spatial domain:** "There's a red pixel here, orange there, yellow there..."
-- **Frequency domain:** "There's a slow (low frequency) color gradient from red to yellow"
+- **Spatial domain:** Specifies the color at every single point.
+- **Frequency domain:** Describes the rate of color change across the surface.
 
-**Why do we need DCT?**
-1. **Identifies redundancy:** Nearby pixels are usually similar (smooth areas)
-2. **Separates what we see from what we don't:** High frequencies (tiny details) are less visible to humans
-3. **Prepares for quantization:** We can discard high-frequency information without visible quality loss
+**Why is DCT needed?**
+1. **Identifies redundancy:** Nearby pixels are usually similar (smooth areas).
+2. **Separates perceptible from imperceptible:** High frequencies (tiny details) are less visible to the human eye.
+3. **Prepares for quantization:** High-frequency information can be potentially discarded without significant quality loss.
 
 **DCT Applications:**
 - Image compression (JPEG)
@@ -214,9 +195,9 @@ DC (low frequency):          AC (high frequencies):
 - Encoded using Run-Length Encoding + Huffman
 
 **Why split DC and AC?**
-1. **DC is predictable:** Adjacent blocks have similar brightness, so storing differences (DPCM) saves bits
-2. **AC usually zero:** High frequencies are removed during quantization, so RLE is extremely effective
-3. **Different encoding:** DC needs full range representation; AC needs efficient zero compression
+1. **DC is predictable:** Adjacent blocks have similar brightness, so storing differences (DPCM) saves bits.
+2. **AC usually zero:** High frequencies are removed during quantization, so RLE is extremely effective.
+3. **Different encoding:** DC needs full range representation; AC needs efficient zero compression.
 
 ---
 
@@ -227,8 +208,8 @@ Dividing DCT coefficients by a quality-dependent table and rounding to integers.
 
 **Why is it necessary?**
 - Human eyes can't distinguish small differences in high frequencies
-- Example: A pixel value of 5.7 vs 4.3 in a tiny detail looks identical to us
-- By rounding to integers (5.7 → 6), we reduce precision with no visible quality change
+- Example: A pixel value of 5.7 vs 4.3 in a tiny detail looks identical to the human eye
+- By rounding to integers (5.7 → 6), precision is reduced with no visible quality change
 - High-frequency coefficients are divided by larger numbers, often resulting in 0
 
 **Mathematical formula:**
@@ -359,7 +340,7 @@ Then add 128 to shift back to [0, 255] range.
 For a deeper understanding, please consult these authoritative sources instead of general Wikipedia articles.
 
 **Official Standards (The "Bible" of JPEG):**
-- **[ITU-T T.81 Recommendation](https://www.w3.org/Graphics/JPEG/itu-t81.pdf)** - The official specification for JPEG (ISO/IEC 10918-1). This is the definitive source for all formulas and tables used in this project.
+- **[ITU-T T.81 Recommendation](https://www.w3.org/Graphics/JPEG/itu-t81.pdf)** - The official specification for JPEG (ISO/IEC 10918-1). This is the definitive source for all formulas and tables.
 - **[W3C JPEG File Interchange Format (JFIF)](https://www.w3.org/Graphics/JPEG/jfif3.pdf)** - The standard describing how JPEG data is actually stored in files.
 
 **Academic & Mathematical Foundations:**
@@ -367,16 +348,11 @@ For a deeper understanding, please consult these authoritative sources instead o
 - **[The Scientist and Engineer's Guide to Digital Signal Processing](https://www.dspguide.com/ch27.htm)** - Chapter 27 covers Data Compression and JPEG in excellent detail.
 - **[Wikipedia: Discrete Cosine Transform](https://en.wikipedia.org/wiki/Discrete_cosine_transform)** - Mathematical explanation of why DCT works for signal compaction.
 
-**Implementation Guides (Deep Dive):**
+**Comprehensive Overviews:**
 - **[Wikipedia: JPEG](https://en.wikipedia.org/wiki/JPEG)** - Comprehensive guide to the JPEG compression algorithm.
 - **[Wikipedia: JPEG (Syntax and Structure)](https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure)** - Technical overview of the standard and file structure.
-
-**This Implementation:**
-- Back to [README.md](README.md) for usage guide
-- Source: [`encoder/`](encoder/) - Optimised Cython/C implementation
-- Source: [`decoder/`](decoder/) - Python implementation
 
 
 ---
 
-*Created for understanding the JPEG compression algorithm used in this encoder/decoder project.*
+*Created for understanding the JPEG compression algorithm.*

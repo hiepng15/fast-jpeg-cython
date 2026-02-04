@@ -168,3 +168,8 @@ libdct8x8.*
 out.jpg
 rec.png
 profile.prof
+
+test-img/*
+!test-img/monkey.tiff
+
+requirements.txt
