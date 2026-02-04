@@ -142,8 +142,6 @@ cython_debug/
 # Project-specific (JPEG Encoder/Decoder)
 .vscode
 .idea/
-rec.png
-out.jpg
 *.prof
 profile.prof
 
@@ -165,8 +163,6 @@ libdct8x8.*
 *.obj
 
 # Project Specific Output
-out.jpg
-rec.png
 profile.prof
 
 test-img/*
